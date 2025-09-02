@@ -18,5 +18,12 @@
     "onoff": "^6.0.0"
   },
   "author": "kjetisve",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kjetisve/homebridge-gpio-garagedoor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kjetisve/homebridge-gpio-garagedoor/issues"
+  }
 }
