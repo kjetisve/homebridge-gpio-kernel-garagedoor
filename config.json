@@ -1,0 +1,10 @@
+{
+  "accessories": [
+    {
+      "accessory": "GpioGarageDoor",
+      "name": "Garage Door",
+      "gpioPin": 17,
+      "pulseDuration": 1000
+    }
+  ]
+}
