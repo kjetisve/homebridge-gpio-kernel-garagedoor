@@ -1,5 +1,5 @@
-// Use pigpio library for GPIO control (requires pigpiod daemon)
-const Gpio = require('pigpio').Gpio;
+// Use native Node.js fs module for GPIO control
+const fs = require('fs');
 
 let Service, Characteristic;
 
@@ -18,19 +18,12 @@ class GpioGarageDoorAccessory {
     this.gpioPin = this.convertToKernelGpio(this.userGpioPin); // Convert to kernel number
     this.pulseDuration = config.pulseDuration || 1000; // ms
 
-    // Initialize GPIO using pigpio library
+    // Initialize GPIO using native filesystem operations
     this.gpioInitialized = false;
     this.log(`Attempting to initialize GPIO ${this.userGpioPin} (kernel ${this.gpioPin})...`);
     
-    try {
-      this.relay = new Gpio(this.userGpioPin, {mode: Gpio.OUTPUT});
-      this.log(`GPIO ${this.userGpioPin} initialized successfully with pigpio`);
-      this.gpioInitialized = true;
-    } catch (error) {
-      this.log(`Error initializing GPIO ${this.userGpioPin}: ${error.message}`);
-      this.log('Plugin will run in simulation mode');
-      this.gpioInitialized = false;
-    }
+    // Try to initialize the specified GPIO pin
+    this.initializeGpio(this.gpioPin);
     
     this.currentState = Characteristic.CurrentDoorState.CLOSED;
     this.targetState = Characteristic.TargetDoorState.CLOSED;
@@ -145,12 +138,15 @@ class GpioGarageDoorAccessory {
     }
 
     // Pulse the relay to trigger the garage door
-    if (this.gpioInitialized && this.relay) {
+    if (this.gpioInitialized) {
       try {
-        this.relay.digitalWrite(1);
+        // Set GPIO high
+        fs.writeFileSync(`/sys/class/gpio/gpio${this.gpioPin}/value`, '1');
         this.log(`GPIO ${this.userGpioPin} set high`);
+        
         setTimeout(() => {
-          this.relay.digitalWrite(0);
+          // Set GPIO low
+          fs.writeFileSync(`/sys/class/gpio/gpio${this.gpioPin}/value`, '0');
           this.log(`GPIO ${this.userGpioPin} set low - pulse complete`);
         }, this.pulseDuration);
       } catch (error) {
