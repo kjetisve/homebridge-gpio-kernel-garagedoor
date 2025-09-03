@@ -25,7 +25,7 @@
     ]
   },
   "dependencies": {
-    "rpi-gpio": "^2.1.7"
+    "pigpio": "^3.3.1"
   },
   "author": "kjetisve",
   "license": "MIT",

@@ -1,5 +1,5 @@
-// Use rpi-gpio library for better compatibility with newer kernels
-const gpio = require('rpi-gpio');
+// Use pigpio library for better compatibility with newer kernels
+const Gpio = require('pigpio').Gpio;
 
 let Service, Characteristic;
 
@@ -16,20 +16,19 @@ class GpioGarageDoorAccessory {
     this.gpioPin = config.gpioPin || 18; // Default GPIO18 (more compatible with Pi 3)
     this.pulseDuration = config.pulseDuration || 1000; // ms
 
-    // Initialize GPIO with rpi-gpio library
+    // Initialize GPIO with pigpio library
     this.gpioInitialized = false;
     this.log(`Attempting to initialize GPIO ${this.gpioPin}...`);
     
-    gpio.setup(this.gpioPin, gpio.DIR_OUT, (err) => {
-      if (err) {
-        this.log(`Error initializing GPIO ${this.gpioPin}: ${err.message}`);
-        this.log('Plugin will run in simulation mode');
-        this.gpioInitialized = false;
-      } else {
-        this.log(`GPIO ${this.gpioPin} initialized successfully`);
-        this.gpioInitialized = true;
-      }
-    });
+    try {
+      this.relay = new Gpio(this.gpioPin, {mode: Gpio.OUTPUT});
+      this.log(`GPIO ${this.gpioPin} initialized successfully`);
+      this.gpioInitialized = true;
+    } catch (error) {
+      this.log(`Error initializing GPIO ${this.gpioPin}: ${error.message}`);
+      this.log('Plugin will run in simulation mode');
+      this.gpioInitialized = false;
+    }
     
     this.currentState = Characteristic.CurrentDoorState.CLOSED;
     this.targetState = Characteristic.TargetDoorState.CLOSED;
@@ -63,23 +62,17 @@ class GpioGarageDoorAccessory {
     }
 
     // Pulse the relay to trigger the garage door
-    if (this.gpioInitialized) {
-      gpio.write(this.gpioPin, true, (err) => {
-        if (err) {
-          this.log(`Error setting GPIO ${this.gpioPin} high: ${err.message}`);
-        } else {
-          this.log(`GPIO ${this.gpioPin} set high`);
-          setTimeout(() => {
-            gpio.write(this.gpioPin, false, (err) => {
-              if (err) {
-                this.log(`Error setting GPIO ${this.gpioPin} low: ${err.message}`);
-              } else {
-                this.log(`GPIO ${this.gpioPin} set low - pulse complete`);
-              }
-            });
-          }, this.pulseDuration);
-        }
-      });
+    if (this.gpioInitialized && this.relay) {
+      try {
+        this.relay.digitalWrite(1);
+        this.log(`GPIO ${this.gpioPin} set high`);
+        setTimeout(() => {
+          this.relay.digitalWrite(0);
+          this.log(`GPIO ${this.gpioPin} set low - pulse complete`);
+        }, this.pulseDuration);
+      } catch (error) {
+        this.log(`Error controlling GPIO: ${error.message}`);
+      }
     } else {
       this.log('GPIO not available - running in simulation mode');
     }
