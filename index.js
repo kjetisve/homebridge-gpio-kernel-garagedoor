@@ -13,7 +13,7 @@ class GpioGarageDoorAccessory {
   constructor(log, config) {
     this.log = log;
     this.name = config.name || "Garage Door";
-    this.gpioPin = config.gpioPin || 18; // Default GPIO18 (more compatible with Pi 3)
+    this.gpioPin = config.gpioPin || 529; // Default to kernel GPIO number (GPIO17 = 529)
     this.pulseDuration = config.pulseDuration || 1000; // ms
 
     // Initialize GPIO using native filesystem operations
@@ -48,8 +48,8 @@ class GpioGarageDoorAccessory {
     } catch (error) {
       this.log(`Error initializing GPIO ${pin}: ${error.message}`);
       
-      // Try alternative GPIO pins if the specified one fails
-      const alternativePins = [18, 23, 24, 25];
+      // Try alternative GPIO pins if the specified one fails (using kernel GPIO numbers for Pi 3)
+      const alternativePins = [530, 535, 536, 537]; // GPIO18=530, GPIO23=535, GPIO24=536, GPIO25=537
       for (const altPin of alternativePins) {
         if (altPin !== pin) {
           this.log(`Trying alternative GPIO ${altPin}...`);
