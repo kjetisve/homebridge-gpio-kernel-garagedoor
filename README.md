@@ -1,4 +1,4 @@
-# homebridge-gpio-garagedoor
+  # homebridge-gpio-garagedoor
 
 A simple [Homebridge](https://homebridge.io/) accessory for controlling a garage door opener using the GPIO pins on a Raspberry Pi.
 
