@@ -1,5 +1,5 @@
-// Use pigpio library for better compatibility with newer kernels
-const Gpio = require('pigpio').Gpio;
+// Use native Node.js fs module for GPIO control
+const fs = require('fs');
 
 let Service, Characteristic;
 
@@ -16,12 +16,17 @@ class GpioGarageDoorAccessory {
     this.gpioPin = config.gpioPin || 18; // Default GPIO18 (more compatible with Pi 3)
     this.pulseDuration = config.pulseDuration || 1000; // ms
 
-    // Initialize GPIO with pigpio library
+    // Initialize GPIO using native filesystem operations
     this.gpioInitialized = false;
     this.log(`Attempting to initialize GPIO ${this.gpioPin}...`);
     
     try {
-      this.relay = new Gpio(this.gpioPin, {mode: Gpio.OUTPUT});
+      // Export the GPIO pin
+      fs.writeFileSync('/sys/class/gpio/export', this.gpioPin.toString());
+      
+      // Set direction to output
+      fs.writeFileSync(`/sys/class/gpio/gpio${this.gpioPin}/direction`, 'out');
+      
       this.log(`GPIO ${this.gpioPin} initialized successfully`);
       this.gpioInitialized = true;
     } catch (error) {
@@ -62,12 +67,15 @@ class GpioGarageDoorAccessory {
     }
 
     // Pulse the relay to trigger the garage door
-    if (this.gpioInitialized && this.relay) {
+    if (this.gpioInitialized) {
       try {
-        this.relay.digitalWrite(1);
+        // Set GPIO high
+        fs.writeFileSync(`/sys/class/gpio/gpio${this.gpioPin}/value`, '1');
         this.log(`GPIO ${this.gpioPin} set high`);
+        
         setTimeout(() => {
-          this.relay.digitalWrite(0);
+          // Set GPIO low
+          fs.writeFileSync(`/sys/class/gpio/gpio${this.gpioPin}/value`, '0');
           this.log(`GPIO ${this.gpioPin} set low - pulse complete`);
         }, this.pulseDuration);
       } catch (error) {
@@ -93,5 +101,17 @@ class GpioGarageDoorAccessory {
 
   getServices() {
     return [this.service];
+  }
+
+  // Cleanup GPIO when plugin is destroyed
+  destroy() {
+    if (this.gpioInitialized) {
+      try {
+        fs.writeFileSync('/sys/class/gpio/unexport', this.gpioPin.toString());
+        this.log(`GPIO ${this.gpioPin} unexported`);
+      } catch (error) {
+        this.log(`Error unexporting GPIO ${this.gpioPin}: ${error.message}`);
+      }
+    }
   }
 }
