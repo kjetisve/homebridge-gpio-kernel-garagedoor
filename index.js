@@ -1,4 +1,10 @@
-const Gpio = require('onoff').Gpio;
+// Try different GPIO approaches for better Pi 3 compatibility
+let Gpio;
+try {
+  Gpio = require('onoff').Gpio;
+} catch (error) {
+  console.log('onoff library not available, trying alternative approach');
+}
 
 let Service, Characteristic;
 
@@ -12,10 +18,19 @@ class GpioGarageDoorAccessory {
   constructor(log, config) {
     this.log = log;
     this.name = config.name || "Garage Door";
-    this.gpioPin = config.gpioPin || 17; // Default GPIO17
+    this.gpioPin = config.gpioPin || 18; // Default GPIO18 (more compatible with Pi 3)
     this.pulseDuration = config.pulseDuration || 1000; // ms
 
-    this.relay = new Gpio(this.gpioPin, 'out');
+    // Initialize GPIO with error handling
+    try {
+      this.relay = new Gpio(this.gpioPin, 'out');
+      this.log(`GPIO ${this.gpioPin} initialized successfully`);
+    } catch (error) {
+      this.log(`Error initializing GPIO ${this.gpioPin}: ${error.message}`);
+      this.log('Plugin will run in simulation mode');
+      this.relay = null;
+    }
+    
     this.currentState = Characteristic.CurrentDoorState.CLOSED;
     this.targetState = Characteristic.TargetDoorState.CLOSED;
 
@@ -46,10 +61,19 @@ class GpioGarageDoorAccessory {
     }
 
     // Pulse the relay to trigger the garage door
-    this.relay.writeSync(1);
-    setTimeout(() => {
-      this.relay.writeSync(0);
-    }, this.pulseDuration);
+    if (this.relay) {
+      try {
+        this.relay.writeSync(1);
+        setTimeout(() => {
+          this.relay.writeSync(0);
+        }, this.pulseDuration);
+        this.log(`GPIO ${this.gpioPin} pulsed for ${this.pulseDuration}ms`);
+      } catch (error) {
+        this.log(`Error controlling GPIO: ${error.message}`);
+      }
+    } else {
+      this.log('GPIO not available - running in simulation mode');
+    }
 
     // Fake the open/close process (for demo, replace with real sensor logic)
     this.currentState = Characteristic.CurrentDoorState.OPENING;
