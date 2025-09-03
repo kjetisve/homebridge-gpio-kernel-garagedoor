@@ -81,11 +81,18 @@ class GpioGarageDoorAccessory {
   // Initialize GPIO pin
   initializeGpio(pin) {
     try {
-      // Export the GPIO pin
-      fs.writeFileSync('/sys/class/gpio/export', pin.toString());
+      // Check if GPIO pin is already exported
+      const gpioPath = `/sys/class/gpio/gpio${pin}`;
+      if (fs.existsSync(gpioPath)) {
+        this.log(`GPIO ${pin} is already exported, using existing export`);
+      } else {
+        // Export the GPIO pin
+        fs.writeFileSync('/sys/class/gpio/export', pin.toString());
+        this.log(`GPIO ${pin} exported successfully`);
+      }
       
       // Set direction to output
-      fs.writeFileSync(`/sys/class/gpio/gpio${pin}/direction`, 'out');
+      fs.writeFileSync(`${gpioPath}/direction`, 'out');
       
       this.log(`GPIO ${pin} initialized successfully`);
       this.gpioInitialized = true;
@@ -99,8 +106,11 @@ class GpioGarageDoorAccessory {
         if (altPin !== pin) {
           this.log(`Trying alternative GPIO ${altPin}...`);
           try {
-            fs.writeFileSync('/sys/class/gpio/export', altPin.toString());
-            fs.writeFileSync(`/sys/class/gpio/gpio${altPin}/direction`, 'out');
+            const altGpioPath = `/sys/class/gpio/gpio${altPin}`;
+            if (!fs.existsSync(altGpioPath)) {
+              fs.writeFileSync('/sys/class/gpio/export', altPin.toString());
+            }
+            fs.writeFileSync(`${altGpioPath}/direction`, 'out');
             this.log(`GPIO ${altPin} initialized successfully as alternative`);
             this.gpioPin = altPin; // Update the pin number
             this.gpioInitialized = true;
