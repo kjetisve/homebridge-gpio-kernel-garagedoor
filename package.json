@@ -25,7 +25,7 @@
     ]
   },
   "dependencies": {
-    "onoff": "^6.0.0"
+    "rpi-gpio": "^2.1.7"
   },
   "author": "kjetisve",
   "license": "MIT",
