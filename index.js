@@ -93,7 +93,7 @@ class GpioGarageDoorAccessory {
       this.log(`Error initializing GPIO ${pin}: ${error.message}`);
       
       // Try alternative GPIO pins if the specified one fails (using free GPIO pins for Pi 3)
-      const alternativeUserPins = [2, 3, 4, 5]; // User-friendly GPIO numbers
+      const alternativeUserPins = [6, 7, 8, 9]; // User-friendly GPIO numbers (appear to be free)
       const alternativePins = alternativeUserPins.map(pin => this.convertToKernelGpio(pin));
       for (const altPin of alternativePins) {
         if (altPin !== pin) {
