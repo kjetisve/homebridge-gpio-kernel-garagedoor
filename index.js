@@ -1,5 +1,5 @@
-// Use native Node.js fs module for GPIO control
-const fs = require('fs');
+// Use pigpio library for GPIO control (requires pigpiod daemon)
+const Gpio = require('pigpio').Gpio;
 
 let Service, Characteristic;
 
@@ -18,12 +18,19 @@ class GpioGarageDoorAccessory {
     this.gpioPin = this.convertToKernelGpio(this.userGpioPin); // Convert to kernel number
     this.pulseDuration = config.pulseDuration || 1000; // ms
 
-    // Initialize GPIO using native filesystem operations
+    // Initialize GPIO using pigpio library
     this.gpioInitialized = false;
-    this.log(`Attempting to initialize GPIO ${this.gpioPin}...`);
+    this.log(`Attempting to initialize GPIO ${this.userGpioPin} (kernel ${this.gpioPin})...`);
     
-    // Try to initialize the specified GPIO pin
-    this.initializeGpio(this.gpioPin);
+    try {
+      this.relay = new Gpio(this.userGpioPin, {mode: Gpio.OUTPUT});
+      this.log(`GPIO ${this.userGpioPin} initialized successfully with pigpio`);
+      this.gpioInitialized = true;
+    } catch (error) {
+      this.log(`Error initializing GPIO ${this.userGpioPin}: ${error.message}`);
+      this.log('Plugin will run in simulation mode');
+      this.gpioInitialized = false;
+    }
     
     this.currentState = Characteristic.CurrentDoorState.CLOSED;
     this.targetState = Characteristic.TargetDoorState.CLOSED;
@@ -92,8 +99,8 @@ class GpioGarageDoorAccessory {
     } catch (error) {
       this.log(`Error initializing GPIO ${pin}: ${error.message}`);
       
-      // Try alternative GPIO pins if the specified one fails (using free GPIO pins for Pi 3)
-      const alternativeUserPins = [6, 7, 8, 9]; // User-friendly GPIO numbers (appear to be free)
+      // Try alternative GPIO pins if the specified one fails (using GPIO pins that might be free)
+      const alternativeUserPins = [10, 11, 12, 13]; // User-friendly GPIO numbers (try different pins)
       const alternativePins = alternativeUserPins.map(pin => this.convertToKernelGpio(pin));
       for (const altPin of alternativePins) {
         if (altPin !== pin) {
@@ -138,16 +145,13 @@ class GpioGarageDoorAccessory {
     }
 
     // Pulse the relay to trigger the garage door
-    if (this.gpioInitialized) {
+    if (this.gpioInitialized && this.relay) {
       try {
-        // Set GPIO high
-        fs.writeFileSync(`/sys/class/gpio/gpio${this.gpioPin}/value`, '1');
-        this.log(`GPIO ${this.gpioPin} set high`);
-        
+        this.relay.digitalWrite(1);
+        this.log(`GPIO ${this.userGpioPin} set high`);
         setTimeout(() => {
-          // Set GPIO low
-          fs.writeFileSync(`/sys/class/gpio/gpio${this.gpioPin}/value`, '0');
-          this.log(`GPIO ${this.gpioPin} set low - pulse complete`);
+          this.relay.digitalWrite(0);
+          this.log(`GPIO ${this.userGpioPin} set low - pulse complete`);
         }, this.pulseDuration);
       } catch (error) {
         this.log(`Error controlling GPIO: ${error.message}`);
