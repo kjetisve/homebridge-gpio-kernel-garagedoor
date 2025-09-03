@@ -13,7 +13,9 @@ class GpioGarageDoorAccessory {
   constructor(log, config) {
     this.log = log;
     this.name = config.name || "Garage Door";
-    this.gpioPin = config.gpioPin || 529; // Default to kernel GPIO number (GPIO17 = 529)
+    // Convert user-friendly GPIO number to kernel GPIO number
+    this.userGpioPin = config.gpioPin || 17; // User-friendly GPIO number (default GPIO17)
+    this.gpioPin = this.convertToKernelGpio(this.userGpioPin); // Convert to kernel number
     this.pulseDuration = config.pulseDuration || 1000; // ms
 
     // Initialize GPIO using native filesystem operations
@@ -34,6 +36,48 @@ class GpioGarageDoorAccessory {
       .on('set', this.handleTargetDoorStateSet.bind(this));
   }
 
+  // Convert user-friendly GPIO number to kernel GPIO number
+  convertToKernelGpio(userGpio) {
+    // GPIO mapping for Raspberry Pi 3 (from /sys/kernel/debug/gpio)
+    const gpioMapping = {
+      2: 514,   // GPIO2
+      3: 515,   // GPIO3
+      4: 516,   // GPIO4
+      5: 517,   // GPIO5
+      6: 518,   // GPIO6
+      7: 519,   // GPIO7
+      8: 520,   // GPIO8
+      9: 521,   // GPIO9
+      10: 522,  // GPIO10
+      11: 523,  // GPIO11
+      12: 524,  // GPIO12
+      13: 525,  // GPIO13
+      14: 526,  // GPIO14
+      15: 527,  // GPIO15
+      16: 528,  // GPIO16
+      17: 529,  // GPIO17
+      18: 530,  // GPIO18
+      19: 531,  // GPIO19
+      20: 532,  // GPIO20
+      21: 533,  // GPIO21
+      22: 534,  // GPIO22
+      23: 535,  // GPIO23
+      24: 536,  // GPIO24
+      25: 537,  // GPIO25
+      26: 538,  // GPIO26
+      27: 539   // GPIO27
+    };
+    
+    const kernelGpio = gpioMapping[userGpio];
+    if (kernelGpio) {
+      this.log(`Converting GPIO ${userGpio} to kernel GPIO ${kernelGpio}`);
+      return kernelGpio;
+    } else {
+      this.log(`Unknown GPIO ${userGpio}, using as-is`);
+      return userGpio;
+    }
+  }
+
   // Initialize GPIO pin
   initializeGpio(pin) {
     try {
@@ -48,8 +92,9 @@ class GpioGarageDoorAccessory {
     } catch (error) {
       this.log(`Error initializing GPIO ${pin}: ${error.message}`);
       
-      // Try alternative GPIO pins if the specified one fails (using kernel GPIO numbers for Pi 3)
-      const alternativePins = [530, 535, 536, 537]; // GPIO18=530, GPIO23=535, GPIO24=536, GPIO25=537
+      // Try alternative GPIO pins if the specified one fails (using free GPIO pins for Pi 3)
+      const alternativeUserPins = [2, 3, 4, 5]; // User-friendly GPIO numbers
+      const alternativePins = alternativeUserPins.map(pin => this.convertToKernelGpio(pin));
       for (const altPin of alternativePins) {
         if (altPin !== pin) {
           this.log(`Trying alternative GPIO ${altPin}...`);
