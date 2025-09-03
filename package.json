@@ -14,6 +14,16 @@
     "homebridge": ">=1.0.0",
     "node": ">=14.0.0"
   },
+  "homebridge": {
+    "pluginName": "homebridge-gpio-garagedoor",
+    "platforms": [],
+    "accessories": [
+      {
+        "accessory": "GpioGarageDoor",
+        "name": "Garage Door"
+      }
+    ]
+  },
   "dependencies": {
     "onoff": "^6.0.0"
   },

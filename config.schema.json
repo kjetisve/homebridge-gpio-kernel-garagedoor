@@ -1,0 +1,34 @@
+{
+  "pluginAlias": "homebridge-gpio-garagedoor",
+  "pluginType": "accessory",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "Name",
+        "type": "string",
+        "required": true,
+        "default": "Garage Door",
+        "description": "Name of the garage door accessory"
+      },
+      "gpioPin": {
+        "title": "GPIO Pin",
+        "type": "integer",
+        "required": true,
+        "default": 17,
+        "minimum": 1,
+        "maximum": 40,
+        "description": "GPIO pin number connected to the relay (1-40)"
+      },
+      "pulseDuration": {
+        "title": "Pulse Duration (ms)",
+        "type": "integer",
+        "required": true,
+        "default": 1000,
+        "minimum": 100,
+        "maximum": 10000,
+        "description": "How long to trigger the relay in milliseconds"
+      }
+    }
+  }
+}
