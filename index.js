@@ -18,10 +18,13 @@ class GpioGarageDoorAccessory {
 
     // Initialize GPIO with rpi-gpio library
     this.gpioInitialized = false;
+    this.log(`Attempting to initialize GPIO ${this.gpioPin}...`);
+    
     gpio.setup(this.gpioPin, gpio.DIR_OUT, (err) => {
       if (err) {
         this.log(`Error initializing GPIO ${this.gpioPin}: ${err.message}`);
         this.log('Plugin will run in simulation mode');
+        this.gpioInitialized = false;
       } else {
         this.log(`GPIO ${this.gpioPin} initialized successfully`);
         this.gpioInitialized = true;
@@ -52,6 +55,8 @@ class GpioGarageDoorAccessory {
   // HomeKit sets target state (open or close)
   handleTargetDoorStateSet(value, callback) {
     this.log(`Setting target state to ${value === 0 ? "OPEN" : "CLOSED"}`);
+    this.log(`GPIO initialized: ${this.gpioInitialized}`);
+    
     if (value === this.currentState) {
       callback();
       return;
