@@ -1,5 +1,5 @@
   {
-  "name": "homebridge-gpio-garagedoor",
+  "name": "homebridge-gpio-kernel-garagedoor",
   "version": "1.0.0",
   "description": "A simple Homebridge accessory for controlling a garage door via Raspberry Pi GPIO.",
   "main": "index.js",
@@ -15,7 +15,7 @@
     "node": ">=14.0.0"
   },
   "homebridge": {
-    "pluginName": "homebridge-gpio-garagedoor",
+    "pluginName": "homebridge-gpio-kernel-garagedoor",
     "platforms": [],
     "accessories": [
       {
@@ -29,10 +29,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kjetisve/homebridge-gpio-garagedoor.git"
+    "url": "https://github.com/kjetisve/homebridge-gpio-kernel-garagedoor.git"
   },
   "bugs": {
-    "url": "https://github.com/kjetisve/homebridge-gpio-garagedoor/issues"
+    "url": "https://github.com/kjetisve/homebridge-gpio-kernel-garagedoor/issues"
   },
-  "homepage": "https://github.com/kjetisve/homebridge-gpio-garagedoor#readme"
+  "homepage": "https://github.com/kjetisve/homebridge-gpio-kernel-garagedoor#readme"
 }

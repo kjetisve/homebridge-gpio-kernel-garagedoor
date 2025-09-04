@@ -1,4 +1,4 @@
-  # homebridge-gpio-garagedoor
+  # homebridge-gpio-kernel-garagedoor
 
 A simple [Homebridge](https://homebridge.io/) accessory for controlling a garage door opener using the GPIO pins on a Raspberry Pi.
 
@@ -34,7 +34,7 @@ A simple [Homebridge](https://homebridge.io/) accessory for controlling a garage
 2. **Navigate to Plugins tab**
 3. **Click the "+" button**
 4. **Select "Install from URL"**
-5. **Enter**: `https://github.com/kjetisve/homebridge-gpio-garagedoor.git`
+5. **Enter**: `https://github.com/kjetisve/homebridge-gpio-kernel-garagedoor.git`
 6. **Click Install**
 
 ### Method 2: Manual Installation
@@ -42,7 +42,7 @@ A simple [Homebridge](https://homebridge.io/) accessory for controlling a garage
 1. **Install the plugin**:
    ```bash
    cd /var/lib/homebridge
-   npm install https://github.com/kjetisve/homebridge-gpio-garagedoor.git
+   npm install https://github.com/kjetisve/homebridge-gpio-kernel-garagedoor.git
    ```
 
 2. **Add to your Homebridge `config.json`**:

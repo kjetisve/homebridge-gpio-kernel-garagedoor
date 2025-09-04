@@ -1,5 +1,5 @@
 {
-  "pluginAlias": "homebridge-gpio-garagedoor",
+  "pluginAlias": "homebridge-gpio-kernel-garagedoor",
   "pluginType": "accessory",
   "accessory": "GpioGarageDoor",
   "schema": {
