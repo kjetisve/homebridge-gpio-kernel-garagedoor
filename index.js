@@ -6,7 +6,7 @@ let Service, Characteristic;
 module.exports = (homebridge) => {
   Service = homebridge.hap.Service;
   Characteristic = homebridge.hap.Characteristic;
-  homebridge.registerAccessory('homebridge-gpio-garagedoor', 'GpioGarageDoor', GpioGarageDoorAccessory);
+  homebridge.registerAccessory('homebridge-gpio-kernel-garagedoor', 'GpioGarageDoor', GpioGarageDoorAccessory);
 };
 
 class GpioGarageDoorAccessory {
