@@ -1,7 +1,7 @@
 {
   "accessories": [
     {
-      "accessory": "homebridge-gpio-kernel-garagedoor",
+      "accessory": "homebridge-gpio-kernel-garagedoor.GpioGarageDoor",
       "name": "Garage Door",
       "gpioPin": 17,
       "pulseDuration": 1000
