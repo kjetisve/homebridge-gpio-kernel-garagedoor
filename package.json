@@ -1,4 +1,5 @@
   {
+  "pluginAlias": "GpioGarageDoor",
   "name": "homebridge-gpio-kernel-garagedoor",
   "version": "1.0.2",
   "description": "A simple Homebridge accessory for controlling a garage door via Raspberry Pi GPIO.",
